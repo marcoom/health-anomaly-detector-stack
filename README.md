@@ -52,7 +52,7 @@ The stack consists of five main components that work together to collect, proces
 
 4. **Generate InfluxDB token** (Required for first-time setup)
    ```bash
-   docker compose exec influxdb influxdb3 create token
+   docker compose exec influxdb influxdb3 create token --admin
    ```
    
 5. **Update .env file**
