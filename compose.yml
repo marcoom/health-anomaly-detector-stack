@@ -1,0 +1,84 @@
+services:
+  health-sensor-simulator:
+    image: marcoom/health-sensor-simulator:1.0.0
+    container_name: health-sensor-simulator
+    ports:
+      - ${STREAMLIT_PORT}:8501
+      - ${FASTAPI_PORT}:8000
+    env_file:
+      - .env
+    networks:
+      - health-anomaly-detector-network
+
+  influxdb:
+    image: influxdb:3.3.0-core
+    container_name: influxdb
+    volumes:
+      - influxdb_data:/var/lib/influxdb3
+    ports:
+      - ${INFLUXDB_PORT}:8181
+    command:
+      - influxdb3
+      - serve
+      - --node-id=node0
+      - --object-store=file
+      - --data-dir=/var/lib/influxdb3
+    networks:
+      - health-anomaly-detector-network
+
+  influxdb3-explorer:
+    container_name: influxdb3-explorer
+    image: influxdata/influxdb3-ui:latest
+    ports:
+      - ${INFLUX_EXPLORER_PORT}:80
+    environment:
+      DEFAULT_INFLUX_SERVER: http://influxdb:8181
+      DEFAULT_INFLUX_DATABASE: ${INFLUXDB_BUCKET}
+      DEFAULT_API_TOKEN: ${INFLUXDB_TOKEN}
+      DEFAULT_SERVER_NAME: influxdb
+    env_file:
+      - .env
+    depends_on:
+      - influxdb
+    networks:
+      - health-anomaly-detector-network
+
+  telegraf:
+    image: telegraf:1.35
+    container_name: telegraf
+    ports:
+      - "8080:8080"
+    volumes:
+      - ${TELEGRAF_CONFIG_PATH}:/etc/telegraf/telegraf.conf:rw
+    env_file:
+      - .env
+    depends_on:
+      - influxdb
+    networks:
+      - health-anomaly-detector-network
+
+  grafana:
+    image: grafana/grafana-oss:12.1.1
+    container_name: grafana
+    ports:
+      - 3000:3000
+    volumes:
+      - ${GRAFANA_INI}:/etc/grafana/grafana.ini:rw
+      - ${GRAFANA_DASHBOARDS_CONFIG}:/etc/grafana/provisioning/dashboards/dashboards.yaml
+      - ${GRAFANA_DATASOURCES_CONFIG}:/etc/grafana/provisioning/datasources/datasources.yaml
+      - ${GRAFANA_DASHBOARDS_DIR}:/var/lib/grafana/dashboards
+      - ${GRAFANA_CUSTOM_ICONS_DIR}:/usr/share/grafana/public/img/icons/marker/
+    env_file:
+      - .env
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+    networks:
+      - health-anomaly-detector-network
+
+networks:
+  health-anomaly-detector-network:
+    driver: bridge
+
+volumes:
+  influxdb_data:
