@@ -1,0 +1,108 @@
+apiVersion: 1
+groups:
+    - orgId: 1
+      name: alarms_vitals
+      folder: anomalies
+      interval: 10s
+      rules:
+        - uid: bew3ultchbbi8c
+          title: Anomaly Detected
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 60
+                to: 0
+              datasourceUid: influxdb
+              model:
+                dataset: iox
+                editorMode: builder
+                format: table
+                intervalMs: 1000
+                maxDataPoints: 43200
+                rawSql: SELECT "anomaly_score", "time" FROM "alarms" WHERE "time" >= $__timeFrom AND "time" <= $__timeTo ORDER BY "time" DESC LIMIT 1
+                refId: A
+                sql:
+                    columns:
+                        - parameters:
+                            - name: anomaly_score
+                              type: functionParameter
+                          type: function
+                        - parameters:
+                            - name: time
+                              type: functionParameter
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 1
+                    orderBy:
+                        property:
+                            name: time
+                            type: string
+                        type: property
+                    orderByDirection: DESC
+                table: alarms
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: B
+                type: reduce
+            - refId: C
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: B
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          dashboardUid: historical-dashboard
+          panelId: 31
+          noDataState: NoData
+          execErrState: Error
+          annotations:
+            __dashboardUid__: historical-dashboard
+            __panelId__: "31"
+          labels:
+            anomaly: "1"
+          isPaused: false
+          notification_settings:
+            receiver: grafana-default-email
