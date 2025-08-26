@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 3,
+  "id": 1,
   "links": [
     {
       "asDropdown": false,
@@ -63,7 +63,7 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 3,
+        "w": 2,
         "x": 0,
         "y": 0
       },
@@ -122,8 +122,8 @@
               "name": "Icon",
               "placement": {
                 "height": 100,
-                "left": -4,
-                "top": -11,
+                "left": -1,
+                "top": -2,
                 "width": 100
               },
               "type": "icon"
@@ -202,7 +202,7 @@
       "gridPos": {
         "h": 3,
         "w": 3,
-        "x": 3,
+        "x": 2,
         "y": 0
       },
       "id": 23,
@@ -304,7 +304,7 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 3,
+        "w": 2,
         "x": 0,
         "y": 3
       },
@@ -364,8 +364,8 @@
               "name": "Icon",
               "placement": {
                 "height": 103,
-                "left": -5,
-                "top": -3.5,
+                "left": -2,
+                "top": -0.5,
                 "width": 76
               },
               "type": "icon"
@@ -437,7 +437,7 @@
       "gridPos": {
         "h": 3,
         "w": 3,
-        "x": 3,
+        "x": 2,
         "y": 3
       },
       "id": 24,
@@ -542,7 +542,7 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 3,
+        "w": 2,
         "x": 0,
         "y": 6
       },
@@ -606,8 +606,7 @@
               "placement": {
                 "height": 100,
                 "left": 0,
-                "rotation": 0,
-                "top": -0.5,
+                "top": -3,
                 "width": 100
               },
               "type": "icon"
@@ -693,7 +692,7 @@
       "gridPos": {
         "h": 3,
         "w": 3,
-        "x": 3,
+        "x": 2,
         "y": 6
       },
       "id": 30,
@@ -858,7 +857,7 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 3,
+        "w": 2,
         "x": 0,
         "y": 9
       },
@@ -918,8 +917,8 @@
               "name": "Icon",
               "placement": {
                 "height": 100,
-                "left": -7.5,
-                "top": -2,
+                "left": -4.5,
+                "top": 0,
                 "width": 63
               },
               "type": "icon"
@@ -1001,7 +1000,7 @@
       "gridPos": {
         "h": 3,
         "w": 3,
-        "x": 3,
+        "x": 2,
         "y": 9
       },
       "id": 26,
@@ -1124,7 +1123,7 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 3,
+        "w": 2,
         "x": 0,
         "y": 12
       },
@@ -1184,9 +1183,8 @@
               "name": "Icon",
               "placement": {
                 "height": 85,
-                "left": -1.5,
-                "rotation": 0,
-                "top": 7,
+                "left": 0.5,
+                "top": -1.5,
                 "width": 103
               },
               "type": "icon"
@@ -1265,7 +1263,7 @@
       "gridPos": {
         "h": 3,
         "w": 3,
-        "x": 3,
+        "x": 2,
         "y": 12
       },
       "id": 27,
@@ -1339,6 +1337,151 @@
       "title": "",
       "transparent": true,
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "description": "Last Anomaly Probability",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "displayName": "Anomaly Probability",
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "noValue": "Vitals OK",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 30
+              },
+              {
+                "color": "orange",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 59.9999
+              }
+            ]
+          },
+          "unit": "%"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 5,
+        "x": 0,
+        "y": 15
+      },
+      "id": 31,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^anomaly_score$/",
+          "values": false
+        },
+        "showPercentChange": true,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "dataset": "iox",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \"anomaly_score\", \"time\" FROM \"alarms\" WHERE \"time\" >= $__timeFrom AND \"time\" <= $__timeTo AND \"time\" >= now() - interval '15 seconds' ORDER BY \"time\" DESC LIMIT 1",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "anomaly_score",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "time",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "orderBy": {
+              "property": {
+                "name": "time",
+                "type": "string"
+              },
+              "type": "property"
+            },
+            "orderByDirection": "DESC"
+          },
+          "table": "alarms"
+        }
+      ],
+      "title": "",
+      "transformations": [
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "anomaly_score",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "anomaly_score"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "100"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": true
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "stat"
     }
   ],
   "preload": false,
@@ -1355,6 +1498,6 @@
   "timepicker": {},
   "timezone": "browser",
   "title": "Mobile",
-  "uid": "1aab3a79-61ec-4e7a-9227-06387fe313c0",
-  "version": 6
+  "uid": "mobile-dashboard",
+  "version": 4
 }

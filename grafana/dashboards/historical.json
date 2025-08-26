@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 4,
   "links": [
     {
       "asDropdown": false,
@@ -717,18 +717,14 @@
         "type": "influxdb",
         "uid": "influxdb"
       },
-      "description": "Measure of heat in the body.",
+      "description": "The force with which blood pushes against the walls of the arteries when the heart beats. It is expressed by two numbers: the systolic pressure (the higher value, coincides with the contraction of the heart or heartbeat) and the diastolic pressure (the lower value, corresponds to the relaxation of the heart between beats).",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "red",
-            "mode": "thresholds",
-            "seriesBy": "last"
+            "mode": "thresholds"
           },
           "decimals": 0,
           "mappings": [],
-          "max": 39,
-          "min": 34,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -737,22 +733,38 @@
                 "value": 0
               },
               {
-                "color": "blue",
-                "value": 0
-              },
-              {
-                "color": "green",
-                "value": 35
-              },
-              {
                 "color": "red",
-                "value": 38
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "systolic_bp"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Systolic"
               }
             ]
           },
-          "unit": "celsius"
-        },
-        "overrides": []
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "diastolic_bp"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Diastolic"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 5,
@@ -760,12 +772,21 @@
         "x": 20,
         "y": 0
       },
-      "id": 9,
+      "id": 23,
       "maxDataPoints": 30,
       "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -773,9 +794,9 @@
           "fields": "",
           "values": false
         },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
       },
       "pluginVersion": "12.1.1",
       "targets": [
@@ -785,20 +806,21 @@
             "type": "grafana-testdata-datasource",
             "uid": "aeu38ocsislxca"
           },
-          "editorMode": "builder",
+          "editorMode": "code",
           "format": "table",
-          "max": 38,
-          "min": 34,
-          "rawSql": "SELECT \"body_temperature\" FROM \"health_vitals\" WHERE \"time\" >= $__timeFrom AND \"time\" <= $__timeTo ORDER BY \"time\" DESC LIMIT 1",
-          "refId": "A",
+          "max": 130,
+          "min": 90,
+          "rawQuery": true,
+          "rawSql": "SELECT \"systolic_bp\" FROM \"health_vitals\" WHERE \"time\" >= $__timeFrom AND \"time\" <= $__timeTo ORDER BY \"time\" DESC LIMIT 1",
+          "refId": "Sys",
           "scenarioId": "random_walk",
-          "spread": 10,
+          "seriesCount": 1,
           "sql": {
             "columns": [
               {
                 "parameters": [
                   {
-                    "name": "body_temperature",
+                    "name": "systolic_bp",
                     "type": "functionParameter"
                   }
                 ],
@@ -812,42 +834,55 @@
                 },
                 "type": "groupBy"
               }
-            ],
-            "limit": 1,
-            "orderBy": {
-              "property": {
-                "name": "time",
-                "type": "string"
-              },
-              "type": "property"
-            },
-            "orderByDirection": "DESC"
+            ]
           },
-          "startValue": 37,
+          "startValue": 120,
+          "table": "health_vitals"
+        },
+        {
+          "dataset": "iox",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "aeu38ocsislxca"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "max": 80,
+          "min": 60,
+          "rawQuery": true,
+          "rawSql": "SELECT \"diastolic_bp\" FROM \"health_vitals\" WHERE \"time\" >= $__timeFrom AND \"time\" <= $__timeTo ORDER BY \"time\" DESC LIMIT 1",
+          "refId": "Dia",
+          "scenarioId": "random_walk",
+          "seriesCount": 1,
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "diastolic_bp",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ]
+          },
+          "startValue": 75,
           "table": "health_vitals"
         }
       ],
       "title": "",
-      "transformations": [
-        {
-          "id": "calculateField",
-          "options": {
-            "mode": "windowFunctions",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": true,
-            "window": {
-              "reducer": "mean",
-              "windowAlignment": "trailing",
-              "windowSize": 0.15,
-              "windowSizeMode": "percentage"
-            }
-          }
-        }
-      ],
       "transparent": true,
-      "type": "gauge"
+      "type": "bargauge"
     },
     {
       "datasource": {
@@ -1589,14 +1624,18 @@
         "type": "influxdb",
         "uid": "influxdb"
       },
-      "description": "The force with which blood pushes against the walls of the arteries when the heart beats. It is expressed by two numbers: the systolic pressure (the higher value, coincides with the contraction of the heart or heartbeat) and the diastolic pressure (the lower value, corresponds to the relaxation of the heart between beats).",
+      "description": "Measure of heat in the body.",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "fixedColor": "red",
+            "mode": "thresholds",
+            "seriesBy": "last"
           },
           "decimals": 0,
           "mappings": [],
+          "max": 39,
+          "min": 34,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1605,38 +1644,22 @@
                 "value": 0
               },
               {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "systolic_bp"
-            },
-            "properties": [
+                "color": "blue",
+                "value": 0
+              },
               {
-                "id": "displayName",
-                "value": "Systolic"
+                "color": "green",
+                "value": 35
+              },
+              {
+                "color": "red",
+                "value": 38
               }
             ]
           },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "diastolic_bp"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Diastolic"
-              }
-            ]
-          }
-        ]
+          "unit": "celsius"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 5,
@@ -1644,21 +1667,12 @@
         "x": 20,
         "y": 5
       },
-      "id": 23,
+      "id": 9,
       "maxDataPoints": 30,
       "options": {
-        "displayMode": "gradient",
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "maxVizHeight": 300,
-        "minVizHeight": 16,
-        "minVizWidth": 8,
-        "namePlacement": "auto",
-        "orientation": "horizontal",
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -1666,9 +1680,9 @@
           "fields": "",
           "values": false
         },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "valueMode": "color"
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
       },
       "pluginVersion": "12.1.1",
       "targets": [
@@ -1678,21 +1692,20 @@
             "type": "grafana-testdata-datasource",
             "uid": "aeu38ocsislxca"
           },
-          "editorMode": "code",
+          "editorMode": "builder",
           "format": "table",
-          "max": 130,
-          "min": 90,
-          "rawQuery": true,
-          "rawSql": "SELECT \"systolic_bp\" FROM \"health_vitals\" WHERE \"time\" >= $__timeFrom AND \"time\" <= $__timeTo ORDER BY \"time\" DESC LIMIT 1",
-          "refId": "Sys",
+          "max": 38,
+          "min": 34,
+          "rawSql": "SELECT \"body_temperature\" FROM \"health_vitals\" WHERE \"time\" >= $__timeFrom AND \"time\" <= $__timeTo ORDER BY \"time\" DESC LIMIT 1",
+          "refId": "A",
           "scenarioId": "random_walk",
-          "seriesCount": 1,
+          "spread": 10,
           "sql": {
             "columns": [
               {
                 "parameters": [
                   {
-                    "name": "systolic_bp",
+                    "name": "body_temperature",
                     "type": "functionParameter"
                   }
                 ],
@@ -1706,55 +1719,42 @@
                 },
                 "type": "groupBy"
               }
-            ]
-          },
-          "startValue": 120,
-          "table": "health_vitals"
-        },
-        {
-          "dataset": "iox",
-          "datasource": {
-            "type": "grafana-testdata-datasource",
-            "uid": "aeu38ocsislxca"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "max": 80,
-          "min": 60,
-          "rawQuery": true,
-          "rawSql": "SELECT \"diastolic_bp\" FROM \"health_vitals\" WHERE \"time\" >= $__timeFrom AND \"time\" <= $__timeTo ORDER BY \"time\" DESC LIMIT 1",
-          "refId": "Dia",
-          "scenarioId": "random_walk",
-          "seriesCount": 1,
-          "sql": {
-            "columns": [
-              {
-                "parameters": [
-                  {
-                    "name": "diastolic_bp",
-                    "type": "functionParameter"
-                  }
-                ],
-                "type": "function"
-              }
             ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ]
+            "limit": 1,
+            "orderBy": {
+              "property": {
+                "name": "time",
+                "type": "string"
+              },
+              "type": "property"
+            },
+            "orderByDirection": "DESC"
           },
-          "startValue": 75,
+          "startValue": 37,
           "table": "health_vitals"
         }
       ],
       "title": "",
+      "transformations": [
+        {
+          "id": "calculateField",
+          "options": {
+            "mode": "windowFunctions",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": true,
+            "window": {
+              "reducer": "mean",
+              "windowAlignment": "trailing",
+              "windowSize": 0.15,
+              "windowSizeMode": "percentage"
+            }
+          }
+        }
+      ],
       "transparent": true,
-      "type": "bargauge"
+      "type": "gauge"
     },
     {
       "datasource": {
@@ -2142,6 +2142,498 @@
       "title": "",
       "transparent": true,
       "type": "gauge"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "id": 33,
+      "panels": [],
+      "title": "",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "displayName": "Anomaly Probability",
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "noValue": "Vitals OK",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 30
+              },
+              {
+                "color": "orange",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 59.9999
+              }
+            ]
+          },
+          "unit": "%"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 16
+      },
+      "id": 34,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^anomaly_score$/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "dataset": "iox",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \"anomaly_score\", \"time\" FROM \"alarms\" WHERE \"time\" >= $__timeFrom AND \"time\" <= $__timeTo AND \"time\" >= now() - interval '15 seconds' ORDER BY \"time\" DESC LIMIT 1",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "anomaly_score",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "time",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "orderBy": {
+              "property": {
+                "name": "time",
+                "type": "string"
+              },
+              "type": "property"
+            },
+            "orderByDirection": "DESC"
+          },
+          "table": "alarms"
+        }
+      ],
+      "title": "Current status",
+      "transformations": [
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "anomaly_score",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "anomaly_score"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "100"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": true
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "displayName": "Anomaly Probability",
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "noValue": "No anomalies",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 30
+              },
+              {
+                "color": "orange",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 59.9999
+              }
+            ]
+          },
+          "unit": "%"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 3,
+        "y": 16
+      },
+      "id": 32,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^anomaly_score$/",
+          "values": false
+        },
+        "showPercentChange": true,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "dataset": "iox",
+          "editorMode": "builder",
+          "format": "table",
+          "rawSql": "SELECT \"anomaly_score\", \"time\" FROM \"alarms\" WHERE \"time\" >= $__timeFrom AND \"time\" <= $__timeTo ORDER BY \"time\" DESC LIMIT 1",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "anomaly_score",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "time",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 1,
+            "orderBy": {
+              "property": {
+                "name": "time",
+                "type": "string"
+              },
+              "type": "property"
+            },
+            "orderByDirection": "DESC"
+          },
+          "table": "alarms"
+        }
+      ],
+      "title": "Last Anomaly",
+      "transformations": [
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "anomaly_score",
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "anomaly_score"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "100"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": true
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb"
+      },
+      "description": "Anomaly probabilies detected",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 1,
+            "drawStyle": "bars",
+            "fillOpacity": 50,
+            "gradientMode": "scheme",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 2,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "displayName": "Anomaly Probability",
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 30
+              },
+              {
+                "color": "orange",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 60
+              }
+            ]
+          },
+          "unit": "%"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 18,
+        "x": 6,
+        "y": 16
+      },
+      "id": 31,
+      "maxDataPoints": 30,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "dataset": "iox",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "aeu38ocsislxca"
+          },
+          "editorMode": "builder",
+          "format": "table",
+          "max": 38,
+          "min": 34,
+          "rawSql": "SELECT \"anomaly_score\", \"time\" FROM \"alarms\" WHERE \"time\" >= $__timeFrom AND \"time\" <= $__timeTo ",
+          "refId": "A",
+          "scenarioId": "random_walk",
+          "spread": 10,
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "anomaly_score",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "time",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ]
+          },
+          "startValue": 37,
+          "table": "alarms"
+        },
+        {
+          "datasource": {
+            "name": "Expression",
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "expression": "${A}*100",
+          "hide": true,
+          "refId": "B",
+          "type": "math"
+        }
+      ],
+      "title": "Anomalies",
+      "transformations": [
+        {
+          "id": "calculateField",
+          "options": {
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "anomaly_score time"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "fixed": "100"
+              }
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            },
+            "replaceFields": true,
+            "window": {
+              "reducer": "mean",
+              "windowAlignment": "trailing",
+              "windowSize": 0.15,
+              "windowSizeMode": "percentage"
+            }
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "timeseries"
     }
   ],
   "preload": false,
@@ -2158,6 +2650,6 @@
   "timepicker": {},
   "timezone": "browser",
   "title": "Historical",
-  "uid": "macl4me",
-  "version": 7
+  "uid": "historical-dashboard",
+  "version": 4
 }

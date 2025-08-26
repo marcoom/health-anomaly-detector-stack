@@ -54,6 +54,10 @@ services:
       - .env
     depends_on:
       - influxdb
+    command: >
+      sh -c "telegraf & sleep 3 &&
+      curl -fsS -X POST -H 'Content-Type: application/json' -d '{\"anomaly_score\": 0.00}' \"$ALARM_ENDPOINT_URL\" || true;
+      wait $!"
     networks:
       - health-anomaly-detector-network
 
@@ -66,6 +70,7 @@ services:
       - ${GRAFANA_INI}:/etc/grafana/grafana.ini:rw
       - ${GRAFANA_DASHBOARDS_CONFIG}:/etc/grafana/provisioning/dashboards/dashboards.yaml
       - ${GRAFANA_DATASOURCES_CONFIG}:/etc/grafana/provisioning/datasources/datasources.yaml
+      - ${GRAFANA_ALERTING_CONFIG}:/etc/grafana/provisioning/alerting/alerting.yaml
       - ${GRAFANA_DASHBOARDS_DIR}:/var/lib/grafana/dashboards
       - ${GRAFANA_CUSTOM_ICONS_DIR}:/usr/share/grafana/public/img/icons/marker/
     env_file:
