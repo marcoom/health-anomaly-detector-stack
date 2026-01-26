@@ -69,26 +69,16 @@ The stack consists of five main components that work together to collect, proces
    ```
    
 5. **Update .env file**
-   Copy the generated token and update the `INFLUXDB_TOKEN` variable in your `.env` file. Also ensure `INFLUXDB_RETENTION_PERIOD` is set to your preferred value (default: `30d`):
+   Copy the generated token and update the `INFLUXDB_TOKEN` variable in your `.env` file. Also ensure the rest of the variables are set to your preferred values:
    ```bash
    INFLUXDB_TOKEN=your-generated-token-here
-   INFLUXDB_RETENTION_PERIOD=30d
    ```
 
-6. **Create InfluxDB database with retention period**
-   Run the following command to create the database with the configured retention period:
-   ```bash
-   docker compose exec influxdb influxdb3 create database ${INFLUXDB_BUCKET} --retention-period ${INFLUXDB_RETENTION_PERIOD} --token ${INFLUXDB_TOKEN}
-   ```
-   *Note: If the database already exists, you can update its retention period using:*
-   ```bash
-   docker compose exec influxdb influxdb3 update database --database ${INFLUXDB_BUCKET} --retention-period ${INFLUXDB_RETENTION_PERIOD} --token ${INFLUXDB_TOKEN}
-   ```
-
-7. **Start the rest of the stack**
+6. **Start the rest of the stack**
    ```bash
    docker compose up -d
    ```
+   *Note: On startup, the `influxdb-setup` service will automatically create the database and set the retention period configured in your `.env` file.*
 
 ## Access Points
 
@@ -97,7 +87,7 @@ Once the stack is running, access the following services:
 | Service | URL | Description |
 |---------|-----|-------------|
 | **Health Simulator (UI)** | `http://localhost:8501` | Streamlit interface for the health sensor |
-| **Grafana** | `http://localhost:3000` | Dashboards and visualization (admin/password) |
+| **Grafana** | `http://localhost:3000` | Dashboards and visualization (default credentials: admin/password) |
 | **Health Simulator (API)** | `http://localhost:8000` | FastAPI endpoints for vitals data |
 | **Interactive API Documentation** | `http://localhost:8000/docs` | Swagger UI for API testing and documentation |
 | **InfluxDB** | `http://localhost:8181` | Time-series database |
@@ -125,7 +115,7 @@ INFLUXDB_PORT=8181
 INFLUXDB_TOKEN=your-influxdb-token-here
 INFLUXDB_BUCKET=health
 INFLUXDB_ORG=health_org
-INFLUXDB_RETENTION_PERIOD=30d
+INFLUXDB_RETENTION_PERIOD=30d  # Duration (e.g., 30d, 24h). Use a long value like 999y for permanent data.
 INFLUX_EXPLORER_PORT=8888
 
 # Grafana

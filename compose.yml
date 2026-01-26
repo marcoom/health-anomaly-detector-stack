@@ -39,7 +39,34 @@ services:
     env_file:
       - .env
     depends_on:
+      influxdb:
+        condition: service_started
+      influxdb-setup:
+        condition: service_completed_successfully
+    networks:
+      - health-anomaly-detector-network
+
+  influxdb-setup:
+    image: influxdb:3.3.0-core
+    container_name: influxdb-setup
+    env_file:
+      - .env
+    environment:
+      - INFLUXDB3_HOST_URL=http://influxdb:8181
+    depends_on:
       - influxdb
+    restart: "no"
+    entrypoint:
+      - sh
+      - -c
+      - |
+        echo "Waiting for InfluxDB to be ready..."
+        until curl -s http://influxdb:8181/health > /dev/null; do
+          sleep 2
+        done
+        echo "InfluxDB is ready. Setting up database..."
+        influxdb3 create database ${INFLUXDB_BUCKET} --retention-period ${INFLUXDB_RETENTION_PERIOD} --token ${INFLUXDB_TOKEN} || \
+        influxdb3 update database --database ${INFLUXDB_BUCKET} --retention-period ${INFLUXDB_RETENTION_PERIOD} --token ${INFLUXDB_TOKEN}
     networks:
       - health-anomaly-detector-network
 
@@ -53,11 +80,12 @@ services:
     env_file:
       - .env
     depends_on:
-      - influxdb
+      influxdb:
+        condition: service_started
+      influxdb-setup:
+        condition: service_completed_successfully
     command: >
-      sh -c "telegraf & sleep 3 &&
-      curl -fsS -X POST -H 'Content-Type: application/json' -d '{\"anomaly_score\": 0.00}' \"$ALARM_ENDPOINT_URL\" || true;
-      wait $!"
+      sh -c "telegraf & sleep 3 && curl -fsS -X POST -H 'Content-Type: application/json' -d '{\"anomaly_score\": 0.00}' \"$ALARM_ENDPOINT_URL\" || true; wait $!"
     networks:
       - health-anomaly-detector-network
 
