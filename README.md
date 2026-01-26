@@ -52,9 +52,11 @@ The stack consists of five main components that work together to collect, proces
    ```
 
 2. **Configure environment variables**
+   First, copy the template file to create a new .env file:
    ```bash
    cp .env.template .env
    ```
+   Then, edit the .env file to set the environment variables (leave the INFLUXDB_TOKEN variable as it is for now, it will be generated later).
    
 3. **Start the InfluxDB service**
    ```bash
