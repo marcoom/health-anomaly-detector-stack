@@ -69,12 +69,23 @@ The stack consists of five main components that work together to collect, proces
    ```
    
 5. **Update .env file**
-   Copy the generated token and update the `INFLUXDB_TOKEN` variable in your `.env` file:
+   Copy the generated token and update the `INFLUXDB_TOKEN` variable in your `.env` file. Also ensure `INFLUXDB_RETENTION_PERIOD` is set to your preferred value (default: `30d`):
    ```bash
    INFLUXDB_TOKEN=your-generated-token-here
+   INFLUXDB_RETENTION_PERIOD=30d
    ```
 
-6. **Start the rest of the stack**
+6. **Create InfluxDB database with retention period**
+   Run the following command to create the database with the configured retention period:
+   ```bash
+   docker compose exec influxdb influxdb3 create database ${INFLUXDB_BUCKET} --retention-period ${INFLUXDB_RETENTION_PERIOD} --token ${INFLUXDB_TOKEN}
+   ```
+   *Note: If the database already exists, you can update its retention period using:*
+   ```bash
+   docker compose exec influxdb influxdb3 update database --database ${INFLUXDB_BUCKET} --retention-period ${INFLUXDB_RETENTION_PERIOD} --token ${INFLUXDB_TOKEN}
+   ```
+
+7. **Start the rest of the stack**
    ```bash
    docker compose up -d
    ```
@@ -114,6 +125,7 @@ INFLUXDB_PORT=8181
 INFLUXDB_TOKEN=your-influxdb-token-here
 INFLUXDB_BUCKET=health
 INFLUXDB_ORG=health_org
+INFLUXDB_RETENTION_PERIOD=30d
 INFLUX_EXPLORER_PORT=8888
 
 # Grafana
